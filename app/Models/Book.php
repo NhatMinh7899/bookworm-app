@@ -69,6 +69,16 @@ class Book extends Model
         
     }
 
+    
+    
+    public function scopeGetAverageStar($query)
+    {
+        return $query->has('reviews')
+            ->addSelect([
+                'AR' => Review::select(DB::raw('SUM(cast(reviews.rating_start AS DOUBLE PRECISION))/COUNT(reviews.id)'))
+                    ->whereColumn('book_id', 'books.id')
+            ]);
+    }
 
     public function scopeGetFinalPrice($query)
     {
@@ -90,4 +100,22 @@ class Book extends Model
         ->orderByDesc('reviews_count')
         ->orderBy('final_price');
     }
+
+    public function scopeSortBy($query, $sort)
+    {
+        switch ($sort) {
+            case "popular":
+                return $query->sortByPopular();
+                break;
+            case "price_asc":
+                return $query->getFinalPrice()->getDiscountPrice()->orderBy('final_price');
+                break;
+            case "price_desc":
+                return $query->getFinalPrice()->getDiscountPrice()->orderByDesc('final_price');
+                break;
+            default:
+                return $query->sortByOnSale()->orderBy('final_price');
+        }
+    }
 }
+

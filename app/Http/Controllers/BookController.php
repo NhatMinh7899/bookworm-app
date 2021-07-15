@@ -65,7 +65,23 @@ class BookController extends Controller
         return response()->json($db);      
     }
 
-    
+    public function getRecommendedBooks()
+    {
+        return Book::getAverageStar()
+            ->getFinalPrice()
+            ->getDiscountPrice()
+            ->orderByDesc('AR')
+            ->orderBy('final_price')
+            ->limit(8)
+            ->get();
+    }
+
+    public function getPopularBooks()
+    {
+        return Book::sortByPopular()
+            ->limit(8)
+            ->get();
+    }
 
 
     /**
